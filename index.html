@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fff1f6">
+<title>Just a Dice ♡</title>
+<style>
+:root {
+  --pink: #e98caf;
+  --dark: #92516d;
+  --pale: #fff1f6;
+  --white: #ffffff;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(145deg, #fff7fa, #ffe7f0);
+  color: var(--dark);
+  font-family: "Trebuchet MS", Arial, sans-serif;
+  padding: 24px 16px 40px;
+}
+main { max-width: 540px; margin: auto; }
+header { text-align: center; padding: 18px 0 24px; }
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 10px;
+  color: #c27b98;
+}
+h1 {
+  font-family: Georgia, serif;
+  font-size: clamp(38px, 10vw, 55px);
+  margin: 10px 0;
+  color: #d779a0;
+  font-weight: normal;
+}
+.subtitle { font-size: 14px; color: #b17a91; }
+.panel {
+  background: rgba(255,255,255,.85);
+  border: 1px solid #f8d5e2;
+  border-radius: 24px;
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 28px #d68aa31a;
+}
+h2 { font-size: 16px; margin: 0 0 15px; }
+.categories {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 9px;
+}
+.category {
+  background: #fff7fa;
+  border: 1px solid #f4d6e2;
+  border-radius: 15px;
+  padding: 12px 4px;
+  color: var(--dark);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  transition: .2s;
+}
+.category span { display: block; font-size: 25px; margin-bottom: 5px; }
+.category.active {
+  background: #f9d6e4;
+  border-color: #e99abb;
+  transform: translateY(-2px);
+}
+.dice-area { text-align: center; padding: 22px 0 12px; }
+.dice {
+  width: 105px;
+  height: 105px;
+  margin: 0 auto 15px;
+  background: linear-gradient(145deg, #f6b5ce, #e58caf);
+  border: 3px solid #fff;
+  border-radius: 25px;
+  display: grid;
+  place-items: center;
+  font-size: 57px;
+  box-shadow: 0 10px 0 #d8799d, 0 16px 25px #d8799d35;
+  color: white;
+}
+.dice.rolling { animation: wobble .45s ease-in-out infinite; }
+@keyframes wobble {
+  0%,100% { transform: rotate(-8deg) scale(.96); }
+  50% { transform: rotate(8deg) scale(1.04); }
+}
+.result {
+  min-height: 72px;
+  padding: 12px 0;
+  font-family: Georgia, serif;
+  font-size: 25px;
+  overflow-wrap: anywhere;
+}
+.result small {
+  display: block;
+  font: 11px "Trebuchet MS", sans-serif;
+  color: #c27b98;
+  margin-bottom: 8px;
+}
+button { -webkit-tap-highlight-color: transparent; }
+.roll {
+  border: 0;
+  width: 100%;
+  border-radius: 50px;
+  padding: 16px;
+  background: linear-gradient(100deg, #efabc6, #df83a7);
+  color: white;
+  font: bold 14px "Trebuchet MS", sans-serif;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 5px 0 #ce7898;
+}
+.roll:active { transform: translateY(3px); box-shadow: none; }
+.hint { font-size: 11px; color: #b58a9b; margin-top: 13px; }
+label { display: block; font-size: 13px; margin-bottom: 8px; }
+.add-row { display: flex; gap: 8px; }
+input {
+  min-width: 0;
+  flex: 1;
+  border: 1px solid #f0cedc;
+  background: #fff9fb;
+  border-radius: 12px;
+  padding: 12px;
+  color: var(--dark);
+  font: inherit;
+  outline-color: #e99abb;
+}
+.add {
+  border: 0;
+  border-radius: 12px;
+  padding: 0 17px;
+  background: #f4d2e0;
+  color: #92516d;
+  font-size: 22px;
+  cursor: pointer;
+}
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.chip {
+  background: #fff0f6;
+  border: 1px solid #f4d5e1;
+  border-radius: 30px;
+  padding: 8px 10px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.chip button {
+  border: 0;
+  background: none;
+  color: #c56d91;
+  cursor: pointer;
+  margin-left: 5px;
+}
+.empty { color: #b58a9b; font-size: 12px; }
+footer { text-align: center; font-size: 12px; padding: 16px; color: #c27b98; }
+@media (max-width: 360px) {
+  .panel { padding: 16px; }
+  .category { font-size: 11px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Your personal decision maker</div>
+    <h1>Just a Dice ♡</h1>
+    <div class="subtitle">Trop de choix ? Laisse le destin décider.</div>
+  </header>
+
+  <section class="panel">
+    <h2>♡ Qu'est-ce qu'on décide aujourd'hui ?</h2>
+    <div class="categories" id="categories"></div>
+  </section>
+
+  <section class="panel dice-area">
+    <div class="dice" id="dice">🎲</div>
+    <div class="result" id="result">
+      <small>LE DESTIN T'ATTEND...</small>
+      Prêt à jouer ?
+    </div>
+    <button class="roll" id="roll">LANCER LE DÉ ♡</button>
+    <div class="hint">Fais confiance au hasard ✧</div>
+  </section>
+
+  <section class="panel">
+    <h2 id="editorTitle">♡ Tes choix</h2>
+    <label for="newChoice">Ajoute une possibilité à cette catégorie</label>
+    <div class="add-row">
+      <input id="newChoice" maxlength="100"
+        placeholder="Ex. Pizza, Valorant, un film...">
+      <button class="add" id="add" aria-label="Ajouter un choix">+</button>
+    </div>
+    <div class="choices" id="choices"></div>
+    <p class="hint">Tes choix sont enregistrés sur cet appareil. Appuie sur × pour supprimer une option.</p>
+  </section>
+  <footer>made with love ♡ just for you</footer>
+</main>
+
+<script>
+const categories = [
+  {id:"manger", name:"À manger", emoji:"🍓",
+   defaults:["Pizza","Burger","Sushis"]},
+  {id:"jeux", name:"Jeux vidéo", emoji:"🎮",
+   defaults:["Valorant","Overwatch 2","Un jeu chill"]},
+  {id:"films", name:"Films & séries", emoji:"🍿",
+   defaults:["Une comédie","Un film d'horreur","Une série"]},
+  {id:"activites", name:"Activités", emoji:"🧸",
+   defaults:["Une balade","Une soirée cosy","Un jeu à deux"]},
+  {id:"quotidien", name:"Quotidien", emoji:"🌷",
+   defaults:["Ranger un peu","Faire une pause","Prendre l'air"]},
+  {id:"surprises", name:"Surprises", emoji:"💌",
+   defaults:["Un câlin","Un petit mot doux","Un rendez-vous surprise"]}
+];
+
+const storageKey = "just-a-dice-choices-v1";
+let saved = {};
+try {
+  saved = JSON.parse(localStorage.getItem(storageKey) || "{}") || {};
+} catch (error) {
+  saved = {};
+}
+const options = {};
+categories.forEach(cat => {
+  options[cat.id] = Array.isArray(saved[cat.id])
+    ? saved[cat.id].filter(x => typeof x === "string")
+    : [...cat.defaults];
+});
+
+let selected = "manger";
+let busy = false;
+
+const categoryBox = document.getElementById("categories");
+const choicesBox = document.getElementById("choices");
+const result = document.getElementById("result");
+const dice = document.getElementById("dice");
+const rollButton = document.getElementById("roll");
+const newChoice = document.getElementById("newChoice");
+
+function persist() {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(options));
+  } catch (error) {
+    // L'application continue à fonctionner pendant cette session.
+  }
+}
+
+function currentCategory() {
+  return categories.find(cat => cat.id === selected);
+}
+
+function renderCategories() {
+  categoryBox.replaceChildren();
+  categories.forEach(cat => {
+    const button = document.createElement("button");
+    button.className = "category" + (cat.id === selected ? " active" : "");
+    button.innerHTML = "<span>" + cat.emoji + "</span>";
+    button.append(document.createTextNode(cat.name));
+    button.setAttribute("aria-pressed", String(cat.id === selected));
+    button.addEventListener("click", () => {
+      if (busy) return;
+      selected = cat.id;
+      result.innerHTML = "<small>LE DESTIN T'ATTEND...</small>Prêt à jouer ?";
+      dice.textContent = "🎲";
+      renderCategories();
+      renderChoices();
+    });
+    categoryBox.append(button);
+  });
+}
+
+function renderChoices() {
+  const cat = currentCategory();
+  document.getElementById("editorTitle").textContent =
+    cat.emoji + " Tes choix — " + cat.name;
+  choicesBox.replaceChildren();
+
+  if (options[selected].length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "Aucun choix pour le moment. Ajoute-en un !";
+    choicesBox.append(empty);
+    return;
+  }
+
+  options[selected].forEach((choice, index) => {
+    const chip = document.createElement("span");
+    chip.className = "chip";
+    chip.append(document.createTextNode(choice + " "));
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.textContent = "×";
+    remove.setAttribute("aria-label", "Supprimer " + choice);
+    remove.addEventListener("click", () => {
+      options[selected].splice(index, 1);
+      persist();
+      renderChoices();
+    });
+    chip.append(remove);
+    choicesBox.append(chip);
+  });
+}
+
+function addChoice() {
+  const value = newChoice.value.trim();
+  if (!value || busy) return;
+  if (options[selected].some(x => x.toLowerCase() === value.toLowerCase())) {
+    newChoice.value = "";
+    return;
+  }
+  options[selected].push(value);
+  persist();
+  newChoice.value = "";
+  renderChoices();
+}
+
+document.getElementById("add").addEventListener("click", addChoice);
+newChoice.addEventListener("keydown", event => {
+  if (event.key === "Enter") addChoice();
+});
+
+rollButton.addEventListener("click", () => {
+  if (busy) return;
+  const list = options[selected];
+  if (list.length === 0) {
+    result.innerHTML = "<small>OUPS ♡</small>Ajoute d'abord un choix !";
+    return;
+  }
+
+  busy = true;
+  rollButton.disabled = true;
+  rollButton.textContent = "LE DESTIN CHOISIT...";
+  dice.classList.add("rolling");
+  result.innerHTML = "<small>ROULE, ROULE...</small>Hmm...";
+
+  setTimeout(() => {
+    const winner = list[Math.floor(Math.random() * list.length)];
+    dice.classList.remove("rolling");
+    dice.textContent = currentCategory().emoji;
+    result.replaceChildren();
+
+    const small = document.createElement("small");
+    small.textContent = "LE DESTIN A PARLÉ ♡";
+    const answer = document.createElement("div");
+    answer.textContent = winner;
+    result.append(small, answer);
+
+    busy = false;
+    rollButton.disabled = false;
+    rollButton.textContent = "RELANCER LE DÉ ♡";
+  }, 900);
+});
+
+renderCategories();
+renderChoices();
+</script>
+</body>
+</html>
